@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laundry Reservation System</title>
+<style>
+/* ==========================================================================
+   User-Provided Styles
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background: radial-gradient(circle at 10% 20%, rgb(239, 246, 255) 0%, rgb(219, 234, 254) 100%);
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 35px;
+    color: #1e3a8a;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.reservation {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.reservation h2 {
+    color: #1e3a8a;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.reservation p {
+    font-size: 15px;
+    color: #4b5563;
+    margin-bottom: 10px;
+}
+
+#machine {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid #bfdbfe;
+    margin-left: 4px;
+}
+
+label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 6px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1f2937;
+    background-color: #f8fafc;
+    outline: none;
+    transition: all 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+button {
+    margin-top: 20px;
+    padding: 14px;
+    width: 100%;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button[onclick="computePrice()"] {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+button[onclick="computePrice()"]:hover {
+    background: #bae6fd;
+}
+
+h3 {
+    margin-top: 25px;
+    background: #f0fdf4;
+    border: 2px dashed #bbf7d0;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    color: #166534;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#total {
+    font-size: 24px;
+    font-weight: 800;
+    margin-left: 2px;
+}
+
+button[onclick="reserve()"] {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+button[onclick="reserve()"]:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px; 
+    margin-bottom: 40px;
+}
+
+@media (max-width: 600px) {
+    .slots {
+        grid-template-columns: 1fr;
+    }
+}
+
+.slot {
+    background: #ffffff; 
+    border: 4px solid #cbd5e1; 
+    border-radius: 16px;
+    padding: 35px 20px 25px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #1e293b; 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), inset 0 -15px 0 #f1f5f9; 
+    position: relative;
+    overflow: hidden;
+}
+
+.slot::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    transition: background 0.3s;
+}
+
+.slot::after {
+    content: "";
+    display: block;
+    width: 110px;
+    height: 110px;
+    border: 10px solid #94a3b8; 
+    border-radius: 50%;
+    margin: 20px auto 10px auto;
+    background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, rgba(2,132,199,0.3) 100%);
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.15), 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.slot h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e3a8a;
+    letter-spacing: -0.5px;
+}
+
+.slot p {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+}
+
+.available {
+    border-color: #cbd5e1;
+}
+
+.available::before {
+    background: #10b981; 
+}
+
+.available p {
+    background: #e6f4ea;
+    color: #137333;
+}
+
+.available:hover {
+    transform: translateY(-6px);
+    border-color: #3b82f6; 
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15), inset 0 -15px 0 #f1f5f9;
+}
+
+.available:hover::after {
+    border-color: #3b82f6;
+    background: radial-gradient(circle, rgba(56,189,248,0.3) 0%, rgba(37,99,235,0.4) 100%);
+}
+
+.occupied {
+    border-color: #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+.occupied::before {
+    background: #ef4444; 
+}
+
+.occupied p {
+    background: #fce8e6;
+    color: #c5221f;
+}
+
+.occupied::after {
+    border-color: #64748b;
+    border-top-color: #3b82f6; 
+    border-bottom-color: #60a5fa;
+    background: radial-gradient(circle, rgba(244,63,94,0.1) 0%, rgba(225,29,72,0.2) 100%);
+    animation: drumSpin 1.2s linear infinite;
+}
+
+@keyframes drumSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.price-colored {
+    padding: 10px 16px;
+    margin: 8px 6px;
+    font-weight: bold; 
+    color: pink;
+}
+
+.price-white {
+    padding: 10px 16px;
+    margin: 8px 6px;
+    font-weight: bold; 
+    color: rgb(255, 255, 255);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Laundry Reservation System</h1>
+
+    <div class="slots">
+        <div class="slot available" onclick="selectSlot(1)">
+            <h2>Machine 1</h2>
+            <p id="status1">Available</p>
+        </div>
+
+        <div class="slot occupied">
+            <h2>Machine 2</h2>
+            <p>Occupied</p>
+        </div>
+
+        <div class="slot available" onclick="selectSlot(3)">
+            <h2>Machine 3</h2>
+            <p id="status3">Available</p>
+        </div>
+
+        <div class="slot available" onclick="selectSlot(4)">
+            <h2>Machine 4</h2>
+            <p id="status4">Available</p>
+        </div>
+    </div>
+
+    <div class="reservation">
+        <h2>Reserve Slot</h2>
+        <p>Selected Machine: <span id="machine">None</span></p>
+
+        <label for="weight">Weight (kg)</label>
+        <input type="number" id="weight" placeholder="Enter weight" min="0" step="0.1">
+
+        <label for="fabric">Fabric Type</label>
+        <select id="fabric">
+            <option value="white">White - PHP35</option>
+            <option value="colored">Colored - PHP40</option>
+        </select>
+
+        <button onclick="computePrice()">Compute Price</button>
+
+        <h3>Total: ₱<span id="total">0.00</span></h3>
+
+        <button onclick="reserve()">Reserve</button>
+    </div>
+
+</div>
+
+<script>
+let selectedMachine = null;
+
+function selectSlot(machine) {
+    selectedMachine = machine;
+    document.getElementById("machine").innerHTML = machine;
+}
+
+function computePrice() {
+    let weight = parseFloat(document.getElementById("weight").value);
+    let fabric = document.getElementById("fabric").value;
+
+    if (isNaN(weight) || weight <= 0) {
+        alert("Please enter a valid laundry weight.");
+        return;
+    }
+
+    let pricePerKg = 35;
+    if (fabric === "colored") {
+        pricePerKg = 40;
+    }
+
+    let total = weight * pricePerKg;
+    document.getElementById("total").innerHTML = total.toFixed(2);
+}
+
+function reserve() {
+    if (selectedMachine == null) {
+        alert("Please select an available machine.");
+        return;
+    }
+
+    let weight = parseFloat(document.getElementById("weight").value);
+    if (isNaN(weight) || weight <= 0) {
+        alert("Please enter laundry weight and compute price before reserving.");
+        return;
+    }
+
+    // Update status and styling elements
+    let statusElem = document.getElementById("status" + selectedMachine);
+    statusElem.innerHTML = "Occupied";
+
+    let slot = statusElem.parentElement;
+    slot.classList.remove("available");
+    slot.classList.add("occupied");
+    slot.onclick = null; // Disable click actions on occupied elements
+
+    alert("Reservation Successful!");
+
+    // Clear operational dashboard state variables
+    selectedMachine = null;
+    document.getElementById("machine").innerHTML = "None";
+    document.getElementById("weight").value = "";
+    document.getElementById("total").innerHTML = "0.00";
+}
+</script>
+
+</body>
+</html>
